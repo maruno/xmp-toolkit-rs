@@ -52,7 +52,11 @@ fn main() {
     let mut expat_config = cc::Build::new();
     let mut xmp_config = cc::Build::new();
 
-    let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not defined");
+    let mut target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not defined");
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH not defined");
+    if target_arch == "wasm32" {
+        target_os = "wasm32".to_string();
+    }
     match target_os.as_ref() {
         "windows" => {
             expat_config
@@ -114,7 +118,7 @@ fn main() {
             println!("cargo:rustc-link-lib=framework=Security");
         }
 
-        "linux" => {
+        "linux" | "wasm32" => {
             expat_config
                 .define("XML_DEV_URANDOM", None)
                 .include("external/xmp_toolkit/XMPCore/resource/linux")
